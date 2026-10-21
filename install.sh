@@ -124,6 +124,7 @@ cat > "${SERVICE_FILE}" <<EOF
 Description=Nutanix Rabat 2026 demo web app
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
@@ -134,7 +135,9 @@ Environment=NODE_ENV=production
 Environment=PORT=${PORT}
 ExecStart=${NODE_BIN} ${INSTALL_DIR}/server.js
 Restart=always
-RestartSec=3
+RestartSec=5
+TimeoutStopSec=10
+SyslogIdentifier=${APP_NAME}
 NoNewPrivileges=true
 ProtectSystem=full
 PrivateTmp=true
@@ -143,9 +146,11 @@ PrivateTmp=true
 WantedBy=multi-user.target
 EOF
 
+log "Enabling ${APP_NAME} at boot"
 systemctl daemon-reload
-systemctl enable "${APP_NAME}" >/dev/null 2>&1
+systemctl enable "${APP_NAME}"
 systemctl restart "${APP_NAME}"
+systemctl is-enabled --quiet "${APP_NAME}" || die "Service ${APP_NAME} is not enabled at boot."
 
 # --- Firewall ------------------------------------------------------------------
 if systemctl is-active --quiet firewalld; then
@@ -163,6 +168,7 @@ for _ in $(seq 1 20); do
     log "Installed ${APP_NAME} ${VERSION:-main}"
     echo
     echo "  Open: http://${IP:-<vm-ip>}:${PORT}"
+    echo "  Boot: enabled (systemd service ${APP_NAME})"
     echo "  Logs: journalctl -u ${APP_NAME} -f"
     echo
     exit 0

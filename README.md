@@ -83,7 +83,7 @@ What the script does:
 2. Installs `git`, `curl`, `tar` and Node.js 20 with `dnf` (skipped if Node.js 18+ is already present).
 3. Resolves the version to install and clones that tag.
 4. Creates the system user `demoapp` and installs the app in `/opt/demo-next-rabat-26` (`npm ci --omit=dev`).
-5. Creates and starts the systemd service `demo-next-rabat-26` (restarts automatically, starts at boot).
+5. Creates, enables and starts the systemd service `demo-next-rabat-26` (starts at boot, restarts automatically on failure) and verifies it is enabled.
 6. Opens the port in firewalld if firewalld is running.
 7. Waits for `/healthz` to respond and prints the URL, e.g. `http://192.168.1.50:3000`.
 
@@ -96,6 +96,23 @@ sudo systemctl status demo-next-rabat-26
 sudo systemctl restart demo-next-rabat-26
 sudo journalctl -u demo-next-rabat-26 -f
 curl http://127.0.0.1:3000/healthz
+```
+
+### Start on boot
+
+The installer enables the `demo-next-rabat-26` systemd service, so the app starts automatically when the VM boots (after the network is up). If the app crashes, systemd restarts it after 5 seconds and keeps retrying indefinitely.
+
+```bash
+# Check autostart is enabled (prints "enabled")
+systemctl is-enabled demo-next-rabat-26
+
+# Test: reboot, then from any machine
+sudo reboot
+curl http://<vm-ip>:3000/healthz
+
+# Disable / re-enable autostart
+sudo systemctl disable demo-next-rabat-26
+sudo systemctl enable demo-next-rabat-26
 ```
 
 Uninstall:
