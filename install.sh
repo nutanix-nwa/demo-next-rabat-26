@@ -49,6 +49,11 @@ EOF
 
 banner
 
+# The caller's directory may be gone (e.g. a previous install replaced /opt/demo-next-rabat-26),
+# which breaks git and npm. Work from / instead.
+CALLER_PWD="${PWD:-}"
+cd / || die "Cannot change directory to /."
+
 [[ "${EUID}" -eq 0 ]] || die "This script must be run as root (pipe it to 'sudo bash')."
 [[ "${PORT}" =~ ^[0-9]+$ ]] || die "PORT must be a number, got '${PORT}'."
 
@@ -97,8 +102,9 @@ command -v npm >/dev/null 2>&1 || dnf install -y npm >/dev/null
 # --- Resolve version -----------------------------------------------------------
 VERSION="${VERSION#v}"
 if [[ -z "${VERSION}" ]]; then
-  VERSION="$(git ls-remote --tags --refs --sort=-v:refname "${REPO_URL}" 'v*' 2>/dev/null \
-    | head -n1 | sed -E 's#.*refs/tags/v##')" || true
+  TAGS="$(git ls-remote --tags --refs --sort=-v:refname "${REPO_URL}" 'v*' 2>&1)" \
+    || die "Could not list releases from ${REPO_URL}: ${TAGS}"
+  VERSION="$(head -n1 <<<"${TAGS}" | sed -nE 's#.*refs/tags/v##p')"
 fi
 
 if [[ -n "${VERSION}" ]]; then
@@ -210,6 +216,9 @@ for _ in $(seq 1 20); do
     echo "  Boot: enabled (systemd service ${APP_NAME})"
     echo "  Logs: journalctl -u ${APP_NAME} -f"
     echo
+    if [[ "${CALLER_PWD}" == "${INSTALL_DIR}" || "${CALLER_PWD}" == "${INSTALL_DIR}/"* ]]; then
+      warn "Your shell was inside ${INSTALL_DIR}, which was replaced. Run: cd ${CALLER_PWD}"
+    fi
     exit 0
   fi
   sleep 1
