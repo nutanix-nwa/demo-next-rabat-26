@@ -374,14 +374,11 @@ body {
 }
 
 .card-icon {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
   margin-bottom: 14px;
-  filter: drop-shadow(0 0 12px rgba(200, 170, 255, 0.6));
-}
-
-.card-icon.helm {
-  filter: drop-shadow(0 4px 14px rgba(50, 108, 229, 0.6));
+  filter: drop-shadow(0 0 10px rgba(180, 140, 255, 0.55));
 }
 
 .card-kicker {
@@ -531,8 +528,8 @@ body {
   }
 
   .card-icon {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
   }
 
   .plus-badge {
