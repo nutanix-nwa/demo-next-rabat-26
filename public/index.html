@@ -15,6 +15,11 @@
   <div class="page">
     <header class="topbar">
       <div class="brand">NUTANIX<span class="brand-slash" aria-hidden="true"></span></div>
+      <div class="live-users" id="users-block" data-state="connecting" aria-live="polite">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span class="live-users-count" id="users-count">&ndash;</span>
+        <span class="live-users-label" id="users-label">Connecting&hellip;</span>
+      </div>
     </header>
 
     <main class="hero">
@@ -43,14 +48,6 @@
             <div class="info-value">Dec 1, 2026</div>
             <div class="info-label">Event date</div>
           </div>
-          <div class="info-divider" aria-hidden="true"></div>
-          <div class="info-block users-block" id="users-block" data-state="connecting">
-            <div class="info-value">
-              <span class="live-dot" aria-hidden="true"></span>
-              <span id="users-count" aria-live="polite">&ndash;</span>
-            </div>
-            <div class="info-label" id="users-label">Connecting&hellip;</div>
-          </div>
         </div>
       </section>
 
@@ -63,7 +60,9 @@
 
           <div class="cards">
             <article class="glass-card card-nai">
-              <img class="card-icon" src="img/nai-logo.png" alt="Nutanix NAI logo" width="64" height="64" />
+              <div class="logo-badge">
+                <span class="logo-nai" role="img" aria-label="Nutanix NAI logo"></span>
+              </div>
               <div class="card-kicker">Nutanix</div>
               <div class="card-name">NAI</div>
             </article>
@@ -71,7 +70,9 @@
             <div class="plus-badge" aria-hidden="true">+</div>
 
             <article class="glass-card card-nkp">
-              <img class="card-icon" src="img/nkp-logo.png" alt="Nutanix NKP logo" width="64" height="64" />
+              <div class="logo-badge">
+                <img src="img/nkp-logo-original.png" alt="Nutanix NKP logo" width="64" height="64" />
+              </div>
               <div class="card-kicker">Nutanix</div>
               <div class="card-name">NKP</div>
               <div class="card-desc">Kubernetes Platform</div>

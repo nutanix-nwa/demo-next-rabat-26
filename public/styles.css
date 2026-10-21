@@ -48,7 +48,11 @@ body {
 
 /* Header */
 .topbar {
-  padding: 26px 0 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 0 14px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -164,7 +168,7 @@ body {
 /* Info card */
 .info-card {
   display: inline-grid;
-  grid-template-columns: auto 1px auto 1px auto;
+  grid-template-columns: auto 1px auto;
   align-items: stretch;
   padding: 22px 26px;
   border: 1px solid var(--card-border);
@@ -206,20 +210,47 @@ body {
 }
 
 /* Connected users */
+.live-users {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(90, 55, 200, 0.45), rgba(35, 20, 90, 0.55));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 28px rgba(138, 77, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.live-users-count {
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.live-users-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
 .live-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: #8b8b9e;
   flex-shrink: 0;
 }
 
-.users-block[data-state="online"] .live-dot {
+.live-users[data-state="online"] .live-dot {
   background: #3ee08f;
   animation: live 1.8s ease-in-out infinite;
 }
 
-.users-block[data-state="offline"] .live-dot {
+.live-users[data-state="offline"] .live-dot {
   background: #ff5c7a;
 }
 
@@ -360,7 +391,6 @@ body {
 
 .card-nai {
   transform: perspective(900px) rotateY(14deg) translateX(12px);
-  opacity: 0.88;
 }
 
 .card-nkp {
@@ -373,12 +403,28 @@ body {
   transform: perspective(900px) rotateY(0deg) translateY(-6px);
 }
 
-.card-icon {
+.logo-badge {
+  width: 92px;
+  height: 92px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 24px rgba(10, 4, 40, 0.45), 0 0 0 4px rgba(255, 255, 255, 0.18);
+}
+
+.logo-badge img,
+.logo-nai {
   width: 64px;
   height: 64px;
   object-fit: contain;
-  margin-bottom: 14px;
-  filter: drop-shadow(0 0 10px rgba(180, 140, 255, 0.55));
+}
+
+.logo-nai {
+  background: #6b3fe0;
+  -webkit-mask: url(img/nai-logo.png) center / contain no-repeat;
+  mask: url(img/nai-logo.png) center / contain no-repeat;
 }
 
 .card-kicker {
@@ -527,7 +573,26 @@ body {
     padding: 18px 10px;
   }
 
-  .card-icon {
+  .logo-badge {
+    width: 68px;
+    height: 68px;
+  }
+
+  .live-users {
+    gap: 8px;
+    padding: 8px 14px;
+  }
+
+  .live-users-count {
+    font-size: 26px;
+  }
+
+  .live-users-label {
+    font-size: 11px;
+  }
+
+  .logo-badge img,
+  .logo-nai {
     width: 48px;
     height: 48px;
   }
