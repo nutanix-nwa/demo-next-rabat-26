@@ -5,7 +5,7 @@ Landing page for the Nutanix live event in **Rabat, Morocco on Dec 1, 2026**: *"
 The page shows:
 
 - The event hero: **LIVE EVENT** badge, title, *using Nutanix MCP Server & NAI*, location and date.
-- A visual of **Nutanix NAI** (AI Assistant) + **Nutanix NKP** (Kubernetes Platform) as glass cards, with the *Simple / Secure / Scalable / Enterprise Ready* feature row.
+- A visual of **Nutanix NAI** + **Nutanix NKP** (Kubernetes Platform) as glass cards, with the *Simple / Secure / Scalable / Enterprise Ready* feature row.
 - A **live counter of connected users**, updated in real time for everyone viewing the page.
 - The running app version in the footer.
 

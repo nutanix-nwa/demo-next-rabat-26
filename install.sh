@@ -26,6 +26,29 @@ log()  { printf '\033[1;35m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mWARN:\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 
+banner() {
+  local purple='' cyan='' reset=''
+  if [[ -t 1 ]]; then
+    purple=$'\033[1;35m' cyan=$'\033[1;36m' reset=$'\033[0m'
+  fi
+  printf '%s' "${purple}"
+  cat <<'EOF'
+
+  _   _ _   _ _____  _    _   _ _____  __
+ | \ | | | | |_   _|/ \  | \ | |_ _\ \/ /
+ |  \| | | | | | | / _ \ |  \| || | \  /
+ | |\  | |_| | | |/ ___ \| |\  || | /  \
+ |_| \_|\___/  |_|_/   \_\_| \_|___/_/\_\
+
+EOF
+  printf '%s' "${reset}"
+  printf '  %sDemo application deployed by Jarvis%s\n' "${purple}" "${reset}"
+  printf '  Nutanix MCP Server %s+ NAI%s  |  Rabat, Morocco  |  Dec 1, 2026\n' "${cyan}" "${reset}"
+  printf '  ------------------------------------------------------------\n\n'
+}
+
+banner
+
 [[ "${EUID}" -eq 0 ]] || die "This script must be run as root (pipe it to 'sudo bash')."
 [[ "${PORT}" =~ ^[0-9]+$ ]] || die "PORT must be a number, got '${PORT}'."
 
