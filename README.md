@@ -42,7 +42,9 @@ flowchart LR
 │   ├── app.js           WebSocket client, live counter, auto-reconnect
 │   └── favicon.svg
 ├── install.sh           One-line installer for Rocky Linux
-└── scripts/release.sh   Version bump, tag and prune old releases
+└── scripts/
+    ├── release.sh       Version bump, tag and prune old releases
+    └── loadtest.js      Simulate N concurrent users against a running server
 ```
 
 ## Run locally
@@ -125,6 +127,47 @@ sudo rm -rf /opt/demo-next-rabat-26
 sudo userdel demoapp
 sudo firewall-cmd --permanent --remove-port=3000/tcp && sudo firewall-cmd --reload
 ```
+
+## Capacity and sizing
+
+The app is built to serve **500+ concurrent users** on a small VM.
+
+### Recommended VM
+
+| Profile         | vCPU | RAM  | Disk  | Notes                                                       |
+| --------------- | ---- | ---- | ----- | ----------------------------------------------------------- |
+| **Recommended** | 2    | 2 GB | 20 GB | One core for Node.js, one for the OS, SSH, network and dnf  |
+| Minimum         | 1    | 1 GB | 20 GB | Works for 500 users with little headroom                    |
+
+At 500 users expect under 100 MB of memory for the app and under 10% CPU. The same 2 vCPU / 2 GB VM has headroom for several thousand users.
+
+### Measured results
+
+Local test with `scripts/loadtest.js` (each user loads the 5 page files and keeps a live WebSocket):
+
+| Users | HTTP errors | WebSocket errors | Page file p95 | Connect p95 | Server memory | Counter correct |
+| ----- | ----------- | ---------------- | ------------- | ----------- | ------------- | --------------- |
+| 500   | 0           | 0                | 14 ms         | 4 ms        | about 55 MB   | 500/500         |
+| 2000  | 0           | 0                | 25 ms         | 6 ms        | about 76 MB   | 2000/2000       |
+
+### Tuning applied by the installer and the app
+
+- **OS** (`/etc/sysctl.d/90-demo-next-rabat-26.conf`): larger connection queues (`net.core.somaxconn`, `net.ipv4.tcp_max_syn_backlog` = 4096), wider port range, faster socket cleanup (`tcp_fin_timeout` = 15), `fs.file-max` = 200000.
+- **Service** (systemd unit): `LimitNOFILE=65535` so each user's open socket fits comfortably; `NODE_OPTIONS=--max-old-space-size=512` to keep memory predictable.
+- **Server** (`server.js`): count updates are batched and sent at most every 250 ms (500 users joining sends about 3,000 messages instead of 125,000); static files are served from memory with browser caching for CSS/JS/SVG; listen backlog 4096; keep-alive timeouts above common load balancer idle timeouts; incoming WebSocket messages capped at 1 KB.
+- **Browser** (`public/app.js`): reconnects use randomized backoff, so after a restart users reconnect spread out instead of all at once.
+
+### Run the load test against your VM
+
+From another machine with Node.js 18+ and a clone of this repo (`npm install` first):
+
+```bash
+node scripts/loadtest.js --url http://<vm-ip>:3000 --users 500 --hold 30 --ramp 5
+```
+
+Options: `--users` simulated visitors, `--ramp` seconds to spread connections over, `--hold` seconds to keep them open. It prints request and connect latencies, errors and whether every client sees the right count, then `PASS` or `FAIL`.
+
+Run it from a separate machine, not the VM itself. On macOS raise the open-file limit first (`ulimit -n 20000`); a single client machine is limited to roughly 28k outgoing connections.
 
 ## Versioning and releases
 

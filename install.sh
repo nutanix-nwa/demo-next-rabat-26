@@ -116,6 +116,17 @@ mv "${TMP_DIR}/app" "${INSTALL_DIR}"
 chown -R "${APP_USER}:${APP_USER}" "${INSTALL_DIR}"
 command -v restorecon >/dev/null 2>&1 && restorecon -R "${INSTALL_DIR}" >/dev/null 2>&1 || true
 
+# --- OS tuning -----------------------------------------------------------------
+log "Applying kernel network tuning"
+cat > "/etc/sysctl.d/90-${APP_NAME}.conf" <<EOF
+net.core.somaxconn = 4096
+net.ipv4.tcp_max_syn_backlog = 4096
+net.ipv4.ip_local_port_range = 1024 65535
+net.ipv4.tcp_fin_timeout = 15
+fs.file-max = 200000
+EOF
+sysctl --system >/dev/null || warn "Some sysctl settings could not be applied."
+
 # --- systemd service -----------------------------------------------------------
 NODE_BIN="$(command -v node)"
 log "Writing ${SERVICE_FILE}"
@@ -133,6 +144,8 @@ Group=${APP_USER}
 WorkingDirectory=${INSTALL_DIR}
 Environment=NODE_ENV=production
 Environment=PORT=${PORT}
+Environment=NODE_OPTIONS=--max-old-space-size=512
+LimitNOFILE=65535
 ExecStart=${NODE_BIN} ${INSTALL_DIR}/server.js
 Restart=always
 RestartSec=5

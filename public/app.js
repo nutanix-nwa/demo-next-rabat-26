@@ -46,7 +46,7 @@
 
     ws.onclose = function () {
       setState('offline', 'Offline - reconnecting');
-      setTimeout(connect, backoff);
+      setTimeout(connect, backoff * (0.5 + Math.random()));
       backoff = Math.min(backoff * 2, MAX_BACKOFF_MS);
     };
 
