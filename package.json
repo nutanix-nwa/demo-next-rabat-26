@@ -1,0 +1,17 @@
+{
+  "name": "demo-next-rabat-26",
+  "version": "0.0.1",
+  "description": "Nutanix live event demo page (Rabat 2026) with a live connected-users counter",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
