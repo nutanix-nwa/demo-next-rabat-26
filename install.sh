@@ -140,11 +140,12 @@ log "Installing npm dependencies"
 )
 rm -rf "${TMP_DIR}/app/.git"
 
-if [[ -d "${INSTALL_DIR}" ]]; then
-  rm -rf "${INSTALL_DIR}.previous"
-  mv "${INSTALL_DIR}" "${INSTALL_DIR}.previous"
-fi
-mv "${TMP_DIR}/app" "${INSTALL_DIR}"
+# Swap contents, not the directory itself, so shells sitting in ${INSTALL_DIR} stay valid.
+mkdir -p "${INSTALL_DIR}"
+rm -rf "${INSTALL_DIR}.previous"
+mkdir "${INSTALL_DIR}.previous"
+find "${INSTALL_DIR}" -mindepth 1 -maxdepth 1 -exec mv -t "${INSTALL_DIR}.previous" {} +
+find "${TMP_DIR}/app" -mindepth 1 -maxdepth 1 -exec mv -t "${INSTALL_DIR}" {} +
 chown -R "${APP_USER}:${APP_USER}" "${INSTALL_DIR}"
 command -v restorecon >/dev/null 2>&1 && restorecon -R "${INSTALL_DIR}" >/dev/null 2>&1 || true
 
@@ -216,8 +217,8 @@ for _ in $(seq 1 20); do
     echo "  Boot: enabled (systemd service ${APP_NAME})"
     echo "  Logs: journalctl -u ${APP_NAME} -f"
     echo
-    if [[ "${CALLER_PWD}" == "${INSTALL_DIR}" || "${CALLER_PWD}" == "${INSTALL_DIR}/"* ]]; then
-      warn "Your shell was inside ${INSTALL_DIR}, which was replaced. Run: cd ${CALLER_PWD}"
+    if [[ "${CALLER_PWD}" == "${INSTALL_DIR}/"* ]]; then
+      warn "Your shell was inside ${CALLER_PWD}, which was replaced. Run: cd ${CALLER_PWD}"
     fi
     exit 0
   fi
