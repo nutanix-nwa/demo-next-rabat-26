@@ -55,6 +55,19 @@ function loadStaticFiles(dir, prefix = '/') {
 
 const staticFiles = loadStaticFiles(PUBLIC_DIR);
 
+// CSS/JS are cached by browsers, so tag their URLs with the release to load fresh copies after an upgrade.
+function versionAssetUrls(urlPath) {
+  const file = staticFiles.get(urlPath);
+  if (!file) return;
+  const body = Buffer.from(
+    file.body.toString('utf8').replace(/(href|src)="(styles\.css|app\.js)"/g, `$1="$2?v=${version}"`)
+  );
+  file.body = body;
+  file.headers['Content-Length'] = body.length;
+}
+
+versionAssetUrls('/index.html');
+
 function sendJson(res, status, body) {
   res.writeHead(status, { 'Content-Type': MIME_TYPES['.json'], 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(body));
