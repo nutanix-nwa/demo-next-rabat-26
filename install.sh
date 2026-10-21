@@ -31,12 +31,15 @@ die()  { printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 
 # --- OS check -----------------------------------------------------------------
 if [[ -r /etc/os-release ]]; then
+  # Read in a subshell: os-release defines VERSION, which would clobber ours.
   # shellcheck disable=SC1091
-  . /etc/os-release
-  case "${ID:-}" in
-    rocky) log "Detected ${PRETTY_NAME:-Rocky Linux}" ;;
-    rhel|almalinux|centos|ol|fedora) warn "Detected ${PRETTY_NAME:-$ID}; this script targets Rocky Linux but will try anyway." ;;
-    *) die "Unsupported OS '${ID:-unknown}'. This script targets Rocky Linux." ;;
+  OS_ID="$(. /etc/os-release && echo "${ID:-}")"
+  # shellcheck disable=SC1091
+  OS_NAME="$(. /etc/os-release && echo "${PRETTY_NAME:-${ID:-unknown}}")"
+  case "${OS_ID}" in
+    rocky) log "Detected ${OS_NAME}" ;;
+    rhel|almalinux|centos|ol|fedora) warn "Detected ${OS_NAME}; this script targets Rocky Linux but will try anyway." ;;
+    *) die "Unsupported OS '${OS_ID:-unknown}'. This script targets Rocky Linux." ;;
   esac
 else
   die "Cannot read /etc/os-release."
@@ -94,7 +97,7 @@ TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
 log "Cloning ${REPO_URL} (${GIT_REF})"
-git clone --quiet --depth 1 --branch "${GIT_REF}" "${REPO_URL}" "${TMP_DIR}/app" \
+git -c advice.detachedHead=false clone --quiet --depth 1 --branch "${GIT_REF}" "${REPO_URL}" "${TMP_DIR}/app" \
   || die "Could not clone ${REPO_URL} at ${GIT_REF}."
 
 log "Installing npm dependencies"

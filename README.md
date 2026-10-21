@@ -150,6 +150,15 @@ Local test with `scripts/loadtest.js` (each user loads the 5 page files and keep
 | 500   | 0           | 0                | 14 ms         | 4 ms        | about 55 MB   | 500/500         |
 | 2000  | 0           | 0                | 25 ms         | 6 ms        | about 76 MB   | 2000/2000       |
 
+On a Rocky Linux 9.8 VM (4 vCPU, 8 GB), with the load test run on the VM itself so the network is not measured:
+
+| Users | HTTP errors | WebSocket errors | Page file p95 | Connect p95 | Server memory | Counter correct |
+| ----- | ----------- | ---------------- | ------------- | ----------- | ------------- | --------------- |
+| 500   | 0           | 0                | 1 ms          | 1 ms        | about 59 MB   | 500/500         |
+| 2000  | 0           | 0                | 2 ms          | 1 ms        | about 78 MB   | 2000/2000       |
+
+When testing from a remote machine, response times are dominated by network latency: each new connection costs one round trip, so a 250 ms link gives about 0.5 s per page file regardless of server load.
+
 ### Tuning applied by the installer and the app
 
 - **OS** (`/etc/sysctl.d/90-demo-next-rabat-26.conf`): larger connection queues (`net.core.somaxconn`, `net.ipv4.tcp_max_syn_backlog` = 4096), wider port range, faster socket cleanup (`tcp_fin_timeout` = 15), `fs.file-max` = 200000.
